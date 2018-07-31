@@ -45,38 +45,6 @@ class chooseBuoy(smach.State):
              rospy.loginfo('Aliens must have abducted the beacons or sth 3: what do .-.')
              return 'criticalFail'
 
-class chooseExit(smach.State):
-   def __init__(self):
-     smach.State.__init__(self, outcomes=['choiceOK', 'choiceUnsure', 'criticalFail'])
-   def execute(self,userdata):
-         rospy.loginfo('Choosing exit gate...')
-         rospy.sleep(2)
-         if True:
-             rospy.loginfo('Chose the exit buoy. Allg.')
-             return 'choiceOK'
-         if True:
-             rospy.loginfo('Not sure which buoy to go through. Choosing a random one...')
-             return 'choiceUnsure'
-         if True:
-             rospy.loginfo('No buoys could be found. what do .-.')
-             return 'criticalFail'
-
-class navigateThroughExit(smach.State):
-   def __init__(self):
-     smach.State.__init__(self, outcomes=['navOK', 'navError', 'criticalFail'])
-   def execute(self,userdata):
-         rospy.loginfo('Heading through exit...')
-         rospy.sleep(2)
-         if True:
-             rospy.loginfo('All done!')
-             return 'navOK'
-         if True:
-             rospy.loginfo('Something went wrong but i think i am ok...')
-             return 'navError'
-         if True:
-             rospy.loginfo('Nooo! So close!')
-             return 'criticalFail'
-             
 thisName='entrance_gate';
 if __name__ == '__main__':
     rospy.init_node(thisName)
