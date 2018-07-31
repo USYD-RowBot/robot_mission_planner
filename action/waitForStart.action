@@ -1,0 +1,7 @@
+# Define the goal
+string smachName;  # The name of the calling state machine. For display and reporting.
+---
+# Define the result
+int8 status #1: started; 0: abort signal sent.
+---
+# No feedback here

@@ -91,6 +91,12 @@ find_package(catkin REQUIRED COMPONENTS
 #   cfg/DynReconf2.cfg
 # )
 
+########### actionlib specific things
+find_package(catkin REQUIRED genmsg actionlib_msgs actionlib)
+add_action_files(DIRECTORY action FILES searchFor.action waitForStart.action moveToPos.action)
+generate_messages(DEPENDENCIES actionlib_msgs)
+###########
+
 ###################################
 ## catkin specific configuration ##
 ###################################

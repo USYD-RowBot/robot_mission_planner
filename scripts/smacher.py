@@ -1,76 +1,7 @@
-stateMachineName="entrance_gate"
-finalOutcomes=['success','fail']
-states=[
-#   {'name':'name',
-#    'mymessage':'Something to say at the start',
-#    'transitions':[
-#       ('pathName','toStateName','Relevant output message')
-#     ]},
-    {'name':'waitForStart',
-    'mymessage':'Waiting for start...',
-    'transitions':[
-         ('abort','Start aborted by controller.','fail'),
-        ('start','Start signal recieved.','findGates'),
-     ]},
-     {'name':'findGates',
-    'mymessage':'Finding Gates...',
-    'transitions':[
-         ('gatesFound','Found Gates!','chooseEntry'),
-        ('gateTimeout','Not all gates could be found in allocated time period. Proceed with caution!','findGates'),
-        ('criticalFail','No gates could be found. Critical error! Aborting...','fail')
-     ]},
-     {'name':'chooseEntry',
-    'mymessage':'Choosing entry gate...',
-    'transitions':[
-         ('entryFound','Chosen entry gate!','navEntry'),
-        ('entryRandomGuess','Not sure which gate to go through; making random guess :/','navEntry'),
-        ('criticalFail','Not sure which gate to go through: aborting - better safe than sorry!','fail')
-     ]},
-     {'name':'navEntry',
-    'mymessage':'Navigating to entry...',
-    'transitions':[
-         ('gatePassthroughOK','Passed through entry gate!','findBuoys'),
-        ('minorHindrance','Something went wrong, but we are still alive... Moving on.','findBuoys'),
-        ('criticalFail','Something went pretty badly wrong. hlep pls','fail')
-     ]},
-     {'name':'findBuoys',
-    'mymessage':'Identifying buoys...',
-    'transitions':[
-         ('2buoysFound','Got both buoys.','chooseBuoy'),
-        ('1buoyFound','Got one buoy. Lets just use that one :3','chooseBuoy'),
-        ('criticalFail','No buoys could be found. what do .-.','fail')
-     ]},
-     {'name':'chooseBuoy',
-    'mymessage':'Choosing buoy...',
-    'transitions':[
-         ('buoyFoundConfident','Got a confident lock on the appropriate buoy.','navCircleBuoy'),
-        ('buoyNoLock','Not sure which buoy to go around. Just choosing a random one','navCircleBuoy'),
-        ('criticalFail','Aliens must have abducted the beacons or sth 3: what do .-.','fail')
-     ]},
-     {'name':'navCircleBuoy',
-    'mymessage':'Orbiting buoys.',
-    'transitions':[
-         ('orbitDone','Orbit done.','chooseExit'),
-        ('whereRWe','wh-- what happened? ah well im alive lets keep going','chooseExit'),
-        ('criticalFail','X-X','fail')
-     ]},
-     {'name':'chooseExit',
-    'mymessage':'Choosing exit gate...',
-    'transitions':[
-         ('choiceOK','Chose the exit buoy. Allg.','choiceOK'),
-        ('choiceUnsure','Not sure which buoy to go through. Choosing a random one...','chooseBuoy'),
-        ('criticalFail','No buoys could be found. what do .-.','fail')
-     ]},
-     {'name':'navigateThroughExit',
-    'mymessage':'Heading through exit...',
-    'transitions':[
-         ('navOK','All done!','success'),
-        ('navError','Something went wrong but i think i am ok...','success'),
-        ('criticalFail','Nooo! So close!','fail')
-     ]},
-]
-
-
+import templates.sequenceTotems as template
+stateMachineName=template.stateMachineName
+finalOutcomes=template.finalOutcomes
+states=template.states
 
 with open(stateMachineName+".py",'w+') as f:
     f.write("#!/usr/bin/env python\n"
@@ -92,7 +23,7 @@ with open(stateMachineName+".py",'w+') as f:
             stateString+="             return '{0}'\n".format(j[0]);
     f.write(stateString);
     f.write("\n\nif __name__ == '__main__':\n"
-    "    rospy.init_node({0})\n".format(stateMachineName)+
+    "    rospy.init_node('{0}')\n".format(stateMachineName)+
     "    # Create a SMACH state machine\n"
     "    sm = smach.StateMachine(outcomes={0})\n".format(finalOutcomes)+
     "    # Open the container\n"

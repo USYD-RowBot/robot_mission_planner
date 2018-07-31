@@ -1,13 +1,15 @@
 #!/usr/bin/env python
-
+from states import waitForStart
+from states import searchFor
 import rospy
 import smach
 import smach_ros
+from smach_ros import SimpleActionState
 
 
-class find_buoys(smach.State):
+class nav_controller(smach.State):
     def __init__(self):
-        smach.State.__init__(self, outcomes=['found','not_found'])
+        smach.State.__init__(self, outcomes=['success','fail'])
 
     def execute(self,userdata):
         rospy.loginfo("Executing find buoys")
@@ -50,6 +52,20 @@ if __name__ == '__main__':
     # Open the container
     with sm:
         # Add states to the container
+        # waitForStart state
+        smach.StateMachine.add('waitForStart', waitForStart(), 
+                               transitions={'start':'find_buoys', 'abort':'fail'})
+                               
+                               
+        # SearchFor state which finds the gate buoys
+        def search_goal_cb(userdata, goal):
+            search_goal = {};
+            search_goal.target = 'gateBuoys'
+            return search_goal
+        smach.StateMachine.add('find_buoys',
+                                SimpleActionState('',searchFor,search_goal_cb,input_keys=['target'],remapping='derp')
+                    )
+        
         smach.StateMachine.add('find_buoys', find_buoys(), 
                                transitions={'found':'navigate_to_start', 'not_found':'fail'})
         smach.StateMachine.add('navigate_to_start', navigate_to_start(), 
