@@ -2,8 +2,7 @@
 string[] targets;  # Which object we want to find
 ---
 # Define the result
-int8 status #1: found; 0: not found
-string tfframe #TF frame for stuff. 
+Object[] objects;
 ---
 # Define a feedback message
 float32 percent_complete # Search angles? Maybe?

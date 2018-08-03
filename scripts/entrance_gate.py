@@ -4,8 +4,11 @@ import rospy
 import smach
 import smach_ros
 from action_servers.searchFor import searchFor
+from action_servers.moveToPos import moveToPos
+from smach_ros import SimpleActionState
+from action_servers.waitForStart import waitForStart
 from rowbot_mission_planner.msg import searchForAction, searchForGoal
-
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
 
 class chooseEntry(smach.State):
@@ -59,15 +62,16 @@ if __name__ == '__main__':
     # Add states to the container
         smach.StateMachine.add('waitForStart',
                               smach_ros.SimpleActionState('waitForStart', waitForStartAction,
-                                                       goal = waitForStartAction(smachName=thisName)),
+                                                       goal = waitForStartGoal(smachName=thisName)),
                               transitions={'succeeded':'chooseEntry'})
         smach.StateMachine.add('findGates',
-                              smach_ros.SimpleActionState('searchFor', searchForAction,
-                                                       goal = searchForGoal(target=['gates'])), ### Or something.
-                              transitions={'succeeded':'chooseEntry'})
-        smach.StateMachine.add('chooseEntry', chooseEntry(), ## this state is reused for choosing exit
-                              transitions={'entryFound': 'navEntry', 'exitFound': 'navExit', 'criticalFail': 'fail'})
-        smach.StateMachine.add('navEntry',
+                              smach_ros.SimpleActionState('searchFor', searchForAction, goal = searchForGoal(target=['gates'])), ### Or something.
+                              transitions={'succeeded':'moveToStart'})
+        smach.StateMachine.add('moveToStart',
+                              smach_ros.SimpleActionState('move_base', MoveBaseAction, goal_cb=startMidpoint),
+                              transitions={'succeeded':'moveToEnd'}
+        )
+        smach.StateMachine.add('moveToEnd',
                               smach_ros.SimpleActionState('moveToPos', moveToPosAction,
                                                        goal_slots = ['tfName']), ### Or something.
                               transitions={'succeeded':'findBuoys'},
@@ -88,8 +92,6 @@ if __name__ == '__main__':
                                                        input_keys=['chooseBuoy_tfref']),
                               transitions={'succeeded':'findGates'}, ## go back to find gates again.
                               )
-        # smach.StateMachine.add('chooseExit', chooseExit(), #Superceded by chooseEntry
-                              # transitions={'choiceOK': 'choiceOK', 'choiceUnsure': 'chooseBuoy', 'criticalFail': 'fail'})
         smach.StateMachine.add('navExit',
                               smach_ros.SimpleActionState('moveToPos', moveToPosAction,
                                                        goal_slots = ['tfName']),
