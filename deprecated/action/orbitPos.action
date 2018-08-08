@@ -1,0 +1,10 @@
+# Define the goal
+string tfName  # Which object we want to find
+float32 radius # How far to orbit from
+float32 spinRadians # Angular distance to orbit around
+---
+# Define the result
+int8 status #1: there; 0: dead
+---
+# Define a feedback message
+float32 angle_remaining

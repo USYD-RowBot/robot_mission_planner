@@ -8,7 +8,14 @@ project(rowbot_mission_planner)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  rospy
+  rowbot_vision
   smach
+  genmsg
+  actionlib_msgs
+  actionlib
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -59,17 +66,24 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
+add_action_files(
+  DIRECTORY action
+  FILES
+  orbitPos.action
+  searchFor.action
+  waitForStart.action
+)
 
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
 #   std_msgs  # Or other packages containing msgs
 # )
+
+generate_messages(
+  DEPENDENCIES
+  actionlib_msgs std_msgs rowbot_vision
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -92,9 +106,7 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ########### actionlib specific things
-find_package(catkin REQUIRED genmsg actionlib_msgs actionlib)
-add_action_files(DIRECTORY action FILES searchFor.action waitForStart.action moveToPos.action)
-generate_messages(DEPENDENCIES actionlib_msgs)
+
 ###########
 
 ###################################
@@ -109,7 +121,7 @@ generate_messages(DEPENDENCIES actionlib_msgs)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES rowbot_mission_planner
-#  CATKIN_DEPENDS smach
+ CATKIN_DEPENDS actionlib_msgs smach
 #  DEPENDS system_lib
 )
 

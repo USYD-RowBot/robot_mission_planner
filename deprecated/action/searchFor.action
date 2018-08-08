@@ -1,0 +1,8 @@
+# Define the goal
+string[] targets  # Which object we want to find
+---
+# Define the result
+rowbot_vision/Object[] objects
+---
+# Define a feedback message
+float32 percent_complete # Search angles? Maybe?

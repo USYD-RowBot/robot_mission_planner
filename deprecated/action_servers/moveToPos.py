@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 
 import rospy
@@ -20,11 +21,11 @@ class moveToPosServer:
     def execute(self,msg):
         #if found(msg.target):
         rospy.loginfo('Moving to tf: '+msg.tfName)
-        
-        
-        
-        
-        
+
+
+
+
+
         if True:
             rospy.sleep(2);
             self.server.set_succeeded();

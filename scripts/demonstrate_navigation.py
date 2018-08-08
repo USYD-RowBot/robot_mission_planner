@@ -3,42 +3,17 @@
 import rospy
 import smach
 import smach_ros
-import math;
-from action_servers.searchFor import searchFor
-from action_servers.moveToPos import moveToPos
-from action_servers.waitForStart import waitForStart
+import math
+
+from baseFuncs import waitForStart
+from baseFuncs import searchFor
 from smach_ros import SimpleActionState
-from rowbot_mission_planner.msg import searchForAction, searchForGoal
+from rowbot_mission_planner.msg import searchForAction, searchForGoal, waitForStartAction
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 import tf
 
-class navigate_to_start(smach.State):
-    def __init__(self):
-        smach.State.__init__(self,outcomes=['fail','success'])
-    def execute(sleep,userdata):
-        rospy.loginfo("Executing navigate to start")
-        rospy.sleep(5)
-        if True: 
-            rospy.loginfo("Successfully Navigated to start")
-            return'success'
-        else:
-            return 'fail'
-class navigate_to_end(smach.State):
-    def __init__(self):
-        smach.State.__init__(self,outcomes=['fail','success'])
-    def execute(sleep,userdata):
-        rospy.loginfo("Executing navigate to end")
-        rospy.sleep(5)
-        if True: 
-            rospy.loginfo("Successfully Navigated to End")
-            return'success'
-        else:
-            return 'fail'
-
-
 if __name__ == '__main__':
     rospy.init_node('smach_example_state_machine')
-    objectList=rospy.Subscriber("chatter", String, callback)
     # Create a SMACH state machine
     sm = smach.StateMachine(outcomes=['success','fail'])
 
@@ -46,16 +21,11 @@ if __name__ == '__main__':
     with sm:
         # Add states to the container
         # waitForStart state
-        smach.StateMachine.add('waitForStart', waitForStart(), 
-                               transitions={'start':'find_buoys', 'abort':'fail'})
-                               
+        smach.StateMachine.add('waitForStart',waitForStart(),transitions={'started':'navigate_to_start','aborted':'fail'});
+
         #Gate finding
-        smach.StateMachine.add('findGates',smach_ros.SimpleActionState(
-                                                'searchFor', 
-                                                searchForAction, 
-                                                goal = searchForGoal(target=['*-navbuoy']), 
-                                                result_slots=['objects']),
-                              transitions={'succeeded':'navigate_to_start'}); 
+        smach.StateMachine.add('findGates',searchFor(targets=['*-navbuoy]),
+                              transitions={'found':'navigate_to_start','timeout':'fail'});
         def midpointStart(userdata, goal):
             # Extract IDs of start and end beacons
             items=[];
@@ -86,13 +56,13 @@ if __name__ == '__main__':
             mba.target_pose.pose.orientation.z = 0
             mba.target_pose.pose.orientation.w = angle;
             return mba; # my code has a degree yay
-                              
+
         smach.StateMachine.add('navigate_to_start', smach_ros.SimpleActionState(
-                                                'move_base', 
-                                                moveBaseAction, 
+                                                'move_base',
+                                                MoveBaseAction,
                                                 goal_cb = midpointStart, input_keys=['objects']), ### Or something.
-                               transitions={'success':'navigate_to_end','fail':'fail'})
-                               
+                               transitions={'succeeded':'navigate_to_end','preempted':'fail','aborted':'fail'})
+
         def midpointEnd(userdata, goal):
         # Extract IDs of start and end beacons
             items=[];
@@ -123,13 +93,13 @@ if __name__ == '__main__':
             mba.target_pose.pose.orientation.z = 0
             mba.target_pose.pose.orientation.w = angle;
             return mba; # my code has a degree yay
-                              
+
         smach.StateMachine.add('navigate_to_end', smach_ros.SimpleActionState(
-                                                'move_base', 
-                                                moveBaseAction, 
+                                                'move_base',
+                                                MoveBaseAction,
                                                 goal_cb = midpointEnd, input_keys=['objects']), ### Or something.
-                               transitions={'success':'exit','fail':'fail'})
-        
+                               transitions={'succeeded':'exit','preempted':'fail','aborted':'fail'})
+
         def midpointEnd(userdata, goal):
         # Move forward
             listener = tf.TransformListener()
@@ -143,11 +113,11 @@ if __name__ == '__main__':
             mba.target_pose.pose.position.z = 0.0
             mba.target_pose.pose.orientation=rot;
             return mba; # my code has a degree yay
-                              
+
         smach.StateMachine.add('exit', smach_ros.SimpleActionState(
-                                                'move_base', 
-                                                moveBaseAction, 
+                                                'move_base',
+                                                MoveBaseAction,
                                                 goal_cb = midpointEnd, input_keys=['objects']), ### Or something.
-                               transitions={'success':'success','fail':'fail'})
+                               transitions={'succeeded':'success','preempted':'fail','aborted':'fail'})
     # Execute SMACH plan
     outcome = sm.execute()
