@@ -2,7 +2,7 @@ import rospy
 import smach
 class waitForStart(smach.State):
    def __init__(self):
-     smach.State.__init__(self, outcomes=['started', 'aborted')
+     smach.State.__init__(self, outcomes=['started', 'aborted'])
      self.times=0;
    def execute(self,userdata):
          rospy.loginfo('Waiting for start...')
@@ -12,4 +12,4 @@ class waitForStart(smach.State):
             rospy.sleep(2)
             if abort_condition:
                 return 'aborted'
-        return 'started'
+         return 'started'

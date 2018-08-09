@@ -5,8 +5,9 @@ import smach
 import smach_ros
 import math
 
-from baseFuncs import waitForStart
-from baseFuncs import searchFor
+import baseFuncs.searchFor as sf
+from baseFuncs.waitForStart import waitForStart
+from baseFuncs.searchFor import searchFor
 from smach_ros import SimpleActionState
 from rowbot_mission_planner.msg import searchForAction, searchForGoal, waitForStartAction
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
@@ -16,7 +17,6 @@ if __name__ == '__main__':
     rospy.init_node('smach_example_state_machine')
     # Create a SMACH state machine
     sm = smach.StateMachine(outcomes=['success','fail'])
-
     # Open the container
     with sm:
         # Add states to the container
@@ -24,8 +24,11 @@ if __name__ == '__main__':
         smach.StateMachine.add('waitForStart',waitForStart(),transitions={'started':'navigate_to_start','aborted':'fail'});
 
         #Gate finding
-        smach.StateMachine.add('findGates',searchFor(targets=['*-navbuoy]),
-                              transitions={'found':'navigate_to_start','timeout':'fail'});
+        smach.StateMachine.add('findGates',
+            searchFor(targets=['red-navbuoy','red-navbuoy','green-navbuoy','green-navbuoy']),
+            transitions={'found':'navigate_to_start','partial_found':'fail','timeout':'fail'},
+            output_keys=['foundTargets']);
+
         def midpointStart(userdata, goal):
             # Extract IDs of start and end beacons
             items=[];

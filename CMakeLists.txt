@@ -10,11 +10,12 @@ project(rowbot_mission_planner)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
-  rowbot_vision
   smach
   genmsg
-  actionlib_msgs
   actionlib
+  actionlib_msgs
+  sensor_msgs
+  rowbot_vision
   message_generation
 )
 
@@ -66,13 +67,13 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate actions in the 'action' folder
-add_action_files(
-  DIRECTORY action
-  FILES
-  orbitPos.action
-  searchFor.action
-  waitForStart.action
-)
+# add_action_files(
+#   DIRECTORY action
+#   FILES
+#   orbitPos.action
+#   searchFor.action
+#   waitForStart.action
+# )
 
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
@@ -80,10 +81,10 @@ add_action_files(
 #   std_msgs  # Or other packages containing msgs
 # )
 
-generate_messages(
-  DEPENDENCIES
-  actionlib_msgs std_msgs rowbot_vision
-)
+# generate_messages(
+#   DEPENDENCIES
+#   actionlib_msgs std_msgs rowbot_vision
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
