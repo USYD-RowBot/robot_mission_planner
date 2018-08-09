@@ -21,13 +21,12 @@ if __name__ == '__main__':
     with sm:
         # Add states to the container
         # waitForStart state
-        smach.StateMachine.add('waitForStart',waitForStart(),transitions={'started':'navigate_to_start','aborted':'fail'});
+        smach.StateMachine.add('waitForStart',waitForStart(),transitions={'started':'findGates','aborted':'fail'});
 
         #Gate finding
         smach.StateMachine.add('findGates',
             searchFor(targets=['red-navbuoy','red-navbuoy','green-navbuoy','green-navbuoy']),
-            transitions={'found':'navigate_to_start','partial_found':'fail','timeout':'fail'},
-            output_keys=['foundTargets']);
+            transitions={'found':'navigate_to_start','partial_found':'fail','timeout':'fail'});
 
         def midpointStart(userdata, goal):
             # Extract IDs of start and end beacons
