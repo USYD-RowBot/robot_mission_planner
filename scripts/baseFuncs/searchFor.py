@@ -5,13 +5,12 @@ from rowbot_vision.msg import ObjectArray
 # initialise a single listener for all derivative classes to use - saving listener initialisation calls
 
 class searchFor(smach.State):
-
-    def updateInternal(data):
-        self.storedObjects=data;
+    def updateInternal(self,data):
+        self.storedObjects=data.objects
 
     def __init__(self,targets,timeout=None):
         rospy.loginfo('init Finding objects:' + str(targets))
-        smach.State.__init__(self, outcomes=['found', 'partial_found', 'timeout'], output_keys=['foundTargets'])
+        smach.State.__init__(self, outcomes=['found', 'partial_found', 'timeout'], output_keys=['objects'])
         self.findTargets=targets
         if not timeout is None:
             self.timeout=timeout
@@ -24,7 +23,7 @@ class searchFor(smach.State):
         rospy.loginfo('Finding objects:' + str(self.findTargets))
         abort_condition=False
         while not self.timeout==0:
-            rospy.sleep(2)
+            rospy.sleep(0.5)
             tempTargets=deepcopy(self.findTargets)
             results=[];
             for found_obj in self.storedObjects:
@@ -34,10 +33,13 @@ class searchFor(smach.State):
                         results.append(found_obj)
                         pass
             if len(results)==len(self.findTargets):
-                userdata.results=results
-                break # exit the while loop once everything has been found
+                userdata.objects=results
+                return 'found'
+                # break # exit the while loop once everything has been found
             if abort_condition:
-                return 'aborted'
+                return ''
                 # return 'started' ## STRICTLY FOR DEBUGGING ONLY - Replace with above line for production
             self.timeout-=1;
-        return 'started'
+        if len(results)>0:
+            return 'partial_found';
+        return 'timeout'
