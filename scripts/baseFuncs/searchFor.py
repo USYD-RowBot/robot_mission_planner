@@ -23,7 +23,7 @@ class searchFor(smach.State):
         rospy.loginfo('Finding objects:' + str(self.findTargets))
         abort_condition=False
         while not self.timeout==0:
-            rospy.sleep(0.5)
+            rospy.sleep(1)
             tempTargets=deepcopy(self.findTargets)
             results=[];
             for found_obj in self.storedObjects:
